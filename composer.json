@@ -19,5 +19,6 @@
       "VerticaPhpAdapter\\" : "src/",
       "VerticaPhpAdapter\\Test\\" : "Tests/"
     }
-  }
+  },
+  "minimum-stability": "dev"
 }
