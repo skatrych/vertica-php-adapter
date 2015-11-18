@@ -1,0 +1,23 @@
+{
+  "name": "PHP Adapter for Vertica Database from HP. Uses php ODBC extension.",
+  "description": "Provides a Db layer for PHP based application to communicate to HP Vertica databases. Also includes wrappers for different PHP frameworks.",
+  "authors": [
+    {
+      "name": "Sergii Katrych",
+      "email": "sergii.katrych@gmail.com"
+    }
+  ],
+  "require": {
+
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.8.*",
+    "phpunit/dbunit": "1.2.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "VerticaPhpAdapter\\" : "src/",
+      "VerticaPhpAdapter\\Test\\" : "Tests/"
+    }
+  }
+}
