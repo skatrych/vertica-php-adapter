@@ -3,6 +3,8 @@
 /**
  * Abstract Odbc adapter for PHP to communicate to Vertica
  *
+ * @TODO: Implement schema name as a separate attribute for most of the methods to make it more flexible
+ *
  * @author Sergii Katrych <sergii.katrych@westwing.de>
  * @date   17/11/15
  */
@@ -199,6 +201,49 @@ abstract class VerticaOdbcAbstract
 
         array_unshift($parameters, $tableName);
         return $this->prepareAndExecute($sql);
+    }
+
+    /**
+     * Delete from the table with specified WHERE clause(s)
+     * !!! Doesn't allow to delete all records from the table by providing an empty $where !!!
+     * For those cases please use $this->query() instead.
+     *
+     * @author Sergii Katrych <sergii.katrych@westwing.de>
+     * @param string $tableName Given db table name with schema as a prefix (Example: 'schema.table')
+     * @param mixed  $where     WHERE clause, can be either string or array with columnName/value pairs
+     *
+     * @return bool
+     * @throws OdbcException
+     */
+    public function delete($tableName, $where)
+    {
+        $sql = "DELETE FROM ? WHERE ";
+
+        switch (true) {
+            case empty($where):
+                return false;
+                break;
+
+            case is_string($where):
+                $sql .= $where;
+                $where = array($tableName);
+                break;
+
+            case is_array($where):
+                $where = $this->filterBindingParams($tableName, $where);
+                if (empty($where)) {
+                    return false;
+                }
+
+                foreach ($where as $column => $value) {
+                    $sql .= $column . ' = ?,';
+                }
+                $sql .= rtrim($sql, ',');
+                array_unshift($parameters, $tableName);
+                break;
+        }
+
+        return $this->prepareAndExecute($sql, $where);
     }
 
     /**
