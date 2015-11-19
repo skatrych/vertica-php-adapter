@@ -78,10 +78,6 @@ abstract class VerticaOdbcAbstract
             return false;
         }
 
-        if (!empty($this->config['charset'])) {
-            $this->prepareAndExecute("SET NAMES ?", [$this->config['charset']]);
-        }
-
         return true;
     }
 
@@ -185,7 +181,7 @@ abstract class VerticaOdbcAbstract
     {
         $parameters = $this->filterBindingParams($tableName, $parameters);
 
-        $sql = 'INSERT INTO ? (' . join(', ', array_keys($parameters)) . ') VALUES (' . rtrim(str_repeat('?, ', count($parameters)), ',') . ')';
+        $sql = "INSERT INTO {$tableName} (" . join(", ", array_keys($parameters)) . ") VALUES (" . rtrim(str_repeat("?, ", count($parameters)), ",") . ")";
 
         array_unshift($parameters, $tableName);
         return $this->prepareAndExecute($sql, $parameters);
