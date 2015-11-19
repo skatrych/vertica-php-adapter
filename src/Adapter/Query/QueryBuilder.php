@@ -35,21 +35,21 @@ class QueryBuilder
         $this->fromTable = $tableName;
     }
 
-    public function where($key, $value, $valueType = )
+    public function where($condition)
     {
-        $this->appendWhereString("{$key} = ")->appendWhereString(is_numeric($value) ? $value : "'{$value}' ");
+        $this->appendWhereString($condition);
         return $this;
     }
 
-    public function andWhere($key, $value)
+    public function andWhere($condition)
     {
-        $this->appendWhereString("AND ")->where($key, $value);
+        $this->appendWhereString(" AND ")->where($condition);
         return $this;
     }
 
-    public function orWhere($key, $value)
+    public function orWhere($condition)
     {
-        $this->appendWhereString("OR ")->where($key, $value);
+        $this->appendWhereString(" OR ")->where($condition);
         return $this;
     }
 
