@@ -13,6 +13,10 @@ use VerticaPhpAdapter\Adapter\Odbc\VerticaOdbcAbstract;
 
 class QueryBuilder
 {
+    const VALUE_TYPE_STRING = 0;
+    const VALUE_TYPE_NUMERIC = 1;
+    const VALUE_TYPE_FUNC = 2;
+
     protected $adapter;
     protected $selectSQL = '';
 
@@ -31,7 +35,7 @@ class QueryBuilder
         $this->fromTable = $tableName;
     }
 
-    public function where($key, $value)
+    public function where($key, $value, $valueType = )
     {
         $this->appendWhereString("{$key} = ")->appendWhereString(is_numeric($value) ? $value : "'{$value}' ");
         return $this;
@@ -99,8 +103,8 @@ class QueryBuilder
         $this->selectSQL = "SELECT " . $this->buildFieldsList() . " FROM " . $this->fromTable;
         $this->selectSQL .= !empty($this->joinsString) ? " " . $this->joinsString : "";
         $this->selectSQL .= " WHERE " . !empty($this->whereString) ? " " . $this->whereString : " 1";
-        $this->selectSQL .= !empty($this->groupbyString) ? " " . $this->groupbyString : "";
-        $this->selectSQL .= !empty($this->orderbyString) ? " " . $this->orderbyString : "";
+        $this->selectSQL .= !empty($this->groupbyString) ? " GROUP BY " . $this->groupbyString : "";
+        $this->selectSQL .= !empty($this->orderbyString) ? " ORDER BY " . $this->orderbyString : "";
         $this->selectSQL .= !empty($this->limitString) ? " " . $this->limitString : "";
         return $this->selectSQL;
     }
