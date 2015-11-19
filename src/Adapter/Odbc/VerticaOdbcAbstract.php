@@ -78,6 +78,10 @@ abstract class VerticaOdbcAbstract
             return false;
         }
 
+        if (!empty($this->config['charset'])) {
+            $this->prepareAndExecute("SET NAMES ?", [$this->config['charset']]);
+        }
+
         return true;
     }
 
@@ -92,10 +96,18 @@ abstract class VerticaOdbcAbstract
      */
     public function describeTable($tableName, $schemaName = null)
     {
-        $query = $this->query("SELECT column_name, data_type FROM v_catalog.columns WHERE table_schema='{$schemaName}' AND table_name='{$tableName}' ORDER  BY ordinal_position;");
-        $columns = $query->fetchAll();
+        if (null === $schemaName && strpos($tableName, ".") > 0) {
+            list($schemaName, $tableName) = explode(".", $tableName);
+        }
 
         $result = [];
+        $query = $this->query("SELECT column_name, data_type FROM v_catalog.columns WHERE table_schema='{$schemaName}' AND table_name='{$tableName}' ORDER  BY ordinal_position;");
+        $columns = $this->fetchAll($query);
+
+        if (empty($columns)) {
+            return $result;
+        }
+
         foreach ($columns as $columnDetails) {
             $result[$columnDetails['column_name']] = $columnDetails['data_type'];
         }
@@ -135,11 +147,14 @@ abstract class VerticaOdbcAbstract
      */
     public function fetchAll($resource, $fetchMode = self::ARRAY_FETCH_MODE, $rowNumber = null)
     {
-        if (self::OBJECT_FETCH_MODE === $fetchMode) {
-            return odbc_fetch_object($resource, $rowNumber);
-        } else {
-            return odbc_fetch_array($resource, $rowNumber);
+        $results = [];
+
+        $fetchFunc = (self::OBJECT_FETCH_MODE === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
+        while ($row = call_user_func($fetchFunc, $resource, $rowNumber)) {
+            $results[] = $row;
         }
+
+        return $results;
     }
 
     /**
@@ -192,14 +207,13 @@ abstract class VerticaOdbcAbstract
     {
         $parameters = $this->filterBindingParams($tableName, $parameters);
 
-        $sql = 'UPDATE ? SET ';
+        $sql = "UPDATE {$tableName} SET ";
 
         foreach ($parameters as $column => $value) {
-            $sql .= $column . ' = ?,';
+            $sql .= $column . " = '?',";
         }
-        $sql = rtrim($sql, ',') . ' WHERE ' . empty($where) ? $where : '1';
+        $sql = rtrim($sql, ',') . ' WHERE ' . (!empty($where) ? $where : '1');
 
-        array_unshift($parameters, $tableName);
         return $this->prepareAndExecute($sql);
     }
 
@@ -408,6 +422,12 @@ abstract class VerticaOdbcAbstract
         }
 
         // @TODO: validate and quote $parameters values
-        return odbc_execute($stmt, $parameters);
+        $result = odbc_execute($stmt, $parameters);
+
+        if (false === $result) {
+            return false;
+        }
+
+        return odbc_num_rows($stmt);
     }
 }

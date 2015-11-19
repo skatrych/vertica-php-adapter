@@ -22,6 +22,9 @@ class DbTable
     {
         $this->adapter = $adapter;
         $this->name = $tableName;
+        if (!empty($config['schemaname'])) {
+            $this->schemaName = $config['schemaname'];
+        }
     }
 
     public function insert(array $parameters)
