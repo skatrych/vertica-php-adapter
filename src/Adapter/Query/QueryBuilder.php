@@ -33,9 +33,6 @@ class QueryBuilder
 
     public function where($key, $value)
     {
-        if (false === stripos($this->selectSQL, "where")) {
-            $this->appendSql(" WHERE ");
-        }
         $this->appendWhereString("{$key} = ")->appendWhereString(is_numeric($value) ? $value : "'{$value}' ");
         return $this;
     }
@@ -101,7 +98,7 @@ class QueryBuilder
     {
         $this->selectSQL = "SELECT " . $this->buildFieldsList() . " FROM " . $this->fromTable;
         $this->selectSQL .= !empty($this->joinsString) ? " " . $this->joinsString : "";
-        $this->selectSQL .= !empty($this->whereString) ? " " . $this->whereString : " 1";
+        $this->selectSQL .= " WHERE " . !empty($this->whereString) ? " " . $this->whereString : " 1";
         $this->selectSQL .= !empty($this->groupbyString) ? " " . $this->groupbyString : "";
         $this->selectSQL .= !empty($this->orderbyString) ? " " . $this->orderbyString : "";
         $this->selectSQL .= !empty($this->limitString) ? " " . $this->limitString : "";
