@@ -102,7 +102,7 @@ class QueryBuilder
     {
         $this->selectSQL = "SELECT " . $this->buildFieldsList() . " FROM " . $this->fromTable;
         $this->selectSQL .= !empty($this->joinsString) ? " " . $this->joinsString : "";
-        $this->selectSQL .= " WHERE " . !empty($this->whereString) ? " " . $this->whereString : " 1";
+        $this->selectSQL .= " WHERE " . (!empty($this->whereString) ? " " . $this->whereString : " 1");
         $this->selectSQL .= !empty($this->groupbyString) ? " GROUP BY " . $this->groupbyString : "";
         $this->selectSQL .= !empty($this->orderbyString) ? " ORDER BY " . $this->orderbyString : "";
         $this->selectSQL .= !empty($this->limitString) ? " " . $this->limitString : "";
