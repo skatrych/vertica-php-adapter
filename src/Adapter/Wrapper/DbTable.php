@@ -12,39 +12,45 @@ namespace VerticaPhpAdapter\Adapter\Wrapper;
 use VerticaPhpAdapter\Adapter\Odbc\VerticaOdbcAbstract;
 use VerticaPhpAdapter\Adapter\Query\QueryBuilder;
 
-class DbTable extends VerticaOdbcAbstract
+class DbTable
 {
     protected $name;
     protected $schemaName;
+    protected $adapter;
 
-    public function __construct($tableName, array $config)
+    public function __construct(VerticaOdbcAbstract $adapter, $tableName, array $config)
     {
+        $this->adapter = $adapter;
         $this->name = $tableName;
-        parent::__construct($config);
     }
 
     public function insert(array $parameters)
     {
-        return parent::insert($this->name, $parameters);
+        return $this->adapter->insert($this->name, $parameters);
     }
 
     public function update(array $parameters, $where)
     {
-        return parent::update($this->name, $parameters, $where);
+        return $this->adapter->update($this->name, $parameters, $where);
     }
 
     public function delete($where)
     {
-        return parent::delete($this->name, $where);
+        return $this->adapter->delete($this->name, $where);
+    }
+
+    public function query($sql)
+    {
+        return $this->adapter->query($sql);
     }
 
     public function describeTable()
     {
-        return parent::describeTable($this->name, $this->schemaName);
+        return $this->adapter->describeTable($this->name, $this->schemaName);
     }
 
     public function select($fields = [])
     {
-        return (new QueryBuilder($this, $this->name, $fields));
+        return (new QueryBuilder($this->adapter, $this->name, $fields));
     }
 }
