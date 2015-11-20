@@ -81,8 +81,8 @@ class QueryBuilder
 
     public function orderBy($column, $direction = "ASC")
     {
-        $this->groupbyString .= !empty($this->groupbyString) ? ", " : "";
-        $this->groupbyString .= $column . " " . (0 == strcasecmp($direction, "DESC") ? $direction : "ASC");
+        $this->orderbyString .= !empty($this->orderbyString) ? ", " : "";
+        $this->orderbyString .= $column . " " . (0 == strcasecmp($direction, "DESC") ? $direction : "ASC");
         return $this;
     }
 
