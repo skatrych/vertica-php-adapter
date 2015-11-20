@@ -1,6 +1,6 @@
 <?php
 /**
- * Adapter wrapper for Zend Framework
+ * Wrapper adapter for Zend Framework
  *
  * @author Sergii Katrych <sergii.katrych@westwing.de>
  * @date   18/11/15
@@ -12,5 +12,5 @@ use VerticaPhpAdapter\Adapter\Odbc\VerticaOdbcAbstract;
 
 class Zend_Db_Adapter extends VerticaOdbcAbstract
 {
-
+    // Zend Framework specific things to be added
 }

@@ -206,7 +206,7 @@ abstract class VerticaOdbcAbstract
         $sql = "UPDATE {$tableName} SET ";
 
         foreach ($parameters as $column => $value) {
-            $sql .= $column . " = '?',";
+            $sql .= $column . " = {$this->quote($value)},";
         }
         $sql = rtrim($sql, ',') . ' WHERE ' . (!empty($where) ? $where : '1');
 
