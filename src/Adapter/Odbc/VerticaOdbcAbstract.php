@@ -21,6 +21,14 @@ abstract class VerticaOdbcAbstract
     /** @var array */
     protected $config;
 
+    /** @var array */
+    protected $requiredConfigProperties = [
+        'host',
+        'database',
+        'user',
+        'password'
+    ];
+
     /** @var Resource */
     protected $connection = null;
 
@@ -364,8 +372,10 @@ abstract class VerticaOdbcAbstract
      */
     protected function validateConfig()
     {
-        // @TODO: validate config for required properties
-        return true;
+        $requiredProperties = array_flip($this->requiredConfigProperties);
+
+        $missingProperties = array_diff_key($requiredProperties, $this->config);
+        return empty($missingProperties);
     }
 
     /**
