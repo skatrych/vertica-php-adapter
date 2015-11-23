@@ -7,7 +7,7 @@
  */
 
 use VerticaPhpAdapter\Adapter\Wrapper\DbTable;
-use VerticaPhpAdapter\Adapter\Wrapper\Zend_Db_Adapter;
+use VerticaPhpAdapter\Adapter\Wrapper\Simple as VerticaAdapter;
 
 $config = [
     'user' => 'dbuser',
@@ -17,7 +17,7 @@ $config = [
 ];
 
 try {
-    $adapter = new Zend_Db_Adapter($config); // You can create any adapter class and extend it from VerticaOdbcAbstract to have functionality below
+    $adapter = new VerticaAdapter($config); // You can create any adapter class and extend it from VerticaOdbcAbstract to have functionality below
 } catch (Exception $e) {
     var_dump("Failed to init vertica-php-adapter due to {$e->getMessage()}");
 }
