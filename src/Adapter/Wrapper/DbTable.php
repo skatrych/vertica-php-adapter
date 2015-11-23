@@ -33,6 +33,7 @@ class DbTable
         $this->adapter = $adapter;
         $this->name = $tableName;
         $this->schemaName = $schemaName;
+        $this->useSchemaName();
     }
 
     /**
@@ -113,5 +114,19 @@ class DbTable
     public function select($fields = [])
     {
         return (new QueryBuilder($this->adapter, $this->name, $fields));
+    }
+
+    /**
+     * Injecting schema name as a prefix of table name
+     *
+     * @return void
+     * @author Sergii Katrych <sergii.katrych@westwing.de>
+     */
+    protected function useSchemaName()
+    {
+        if (!empty($this->schemaName) || strpos($this->name, ".") > 0) {
+            return;
+        }
+        $this->name = $this->schemaName . "." . $this->name;
     }
 }
