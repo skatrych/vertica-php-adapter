@@ -10,7 +10,7 @@ namespace VerticaPhpAdapter\Db\Query;
 
 
 use VerticaPhpAdapter\Db\Odbc\VerticaOdbcAbstract;
-use VerticaPhpAdapter\Exception\VerticaException;
+use VerticaPhpAdapter\Exception\VerticaQueryException;
 
 class Builder
 {
@@ -191,7 +191,7 @@ class Builder
      * @param int $fetchMode Fetching rows as Objects or Arrays (Default: array)
      *
      * @return array|object
-     * @throws VerticaException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function fetchAll($fetchMode = VerticaOdbcAbstract::FETCH_MODE_ARRAY)
@@ -200,8 +200,8 @@ class Builder
 
         try {
             $resource = $this->adapter->query($this->selectSQL);
-        } catch (VerticaException $e) {
-            throw new VerticaException("Failed to execute query: " . $this->selectSQL . "; due to " . $e->getMessage(), $e->getCode(), $e);
+        } catch (VerticaQueryException $e) {
+            throw new VerticaQueryException("Failed to execute query: " . $this->selectSQL . "; due to " . $e->getMessage(), $e->getCode(), $e);
         }
         return $this->adapter->fetchAll($resource, $fetchMode);
     }

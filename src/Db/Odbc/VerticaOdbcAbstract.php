@@ -87,6 +87,7 @@ abstract class VerticaOdbcAbstract
      * @param string|null $schemaName Schema identifier
      *
      * @return array
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function describeTable($tableName, $schemaName = null)
@@ -116,7 +117,7 @@ abstract class VerticaOdbcAbstract
      * @param string $sql Query string
      *
      * @return resource
-     * @throws VerticaException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function query($sql)
@@ -173,7 +174,7 @@ abstract class VerticaOdbcAbstract
      * @param array  $parameters List of column/value pairs
      *
      * @return bool
-     * @throws VerticaException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function insert($tableName, array $parameters)
@@ -195,7 +196,7 @@ abstract class VerticaOdbcAbstract
      * @param string $where      WHERE clause
      *
      * @return bool
-     * @throws VerticaException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function update($tableName, array $parameters, $where)
@@ -222,7 +223,7 @@ abstract class VerticaOdbcAbstract
      * @param mixed  $where     WHERE clause, can be either string or array with columnName/value pairs
      *
      * @return bool
-     * @throws VerticaException
+     * @throws VerticaQueryException
      */
     public function delete($tableName, $where)
     {
@@ -423,7 +424,7 @@ abstract class VerticaOdbcAbstract
      * @param array  $parameters Parameters to bind (optional in case you don't have placeholders in your query)
      *
      * @return bool
-     * @throws VerticaException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     protected function prepareAndExecute($sql, array $parameters = array())

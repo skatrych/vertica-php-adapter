@@ -11,7 +11,7 @@ namespace VerticaPhpAdapter\Db\Wrapper;
 
 use VerticaPhpAdapter\Db\Odbc\VerticaOdbcAbstract;
 use VerticaPhpAdapter\Db\Query\Builder as QueryBuilder;
-use VerticaPhpAdapter\Exception\VerticaException;
+use VerticaPhpAdapter\Exception\VerticaQueryException;
 
 class DbTable
 {
@@ -42,7 +42,7 @@ class DbTable
      * @param array $parameters Given parameters to insert
      *
      * @return bool
-     * @throws VerticaException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function insert(array $parameters)
@@ -57,6 +57,7 @@ class DbTable
      * @param string $where      Given WHERE clause
      *
      * @return bool
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function update(array $parameters, $where)
@@ -71,6 +72,7 @@ class DbTable
      * @param string $where Given WHERE clause
      *
      * @return bool
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function delete($where)
@@ -84,7 +86,7 @@ class DbTable
      * @param string $sql Given SQL query
      *
      * @return ODBC resource
-     * @throws VerticaException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function query($sql)
@@ -96,6 +98,7 @@ class DbTable
      * Returns the list of table columns and types as an array
      *
      * @return array
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function describeTable()
