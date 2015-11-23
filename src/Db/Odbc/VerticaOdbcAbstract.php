@@ -19,7 +19,7 @@ use VerticaPhpAdapter\Exception\VerticaQueryException;
 abstract class VerticaOdbcAbstract
 {
     const FETCH_MODE_ARRAY = 1;
-    const OBJECT_FETCH_MODE = 2;
+    const FETCH_MODE_OBJECT = 2;
 
     /** @var array */
     protected $config;
@@ -145,7 +145,7 @@ abstract class VerticaOdbcAbstract
     {
         $results = [];
 
-        $fetchFunc = (self::OBJECT_FETCH_MODE === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
+        $fetchFunc = (self::FETCH_MODE_OBJECT === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
         while ($row = $fetchFunc($fetchFunc, $resource, $rowNumber)) {
             $results[] = $row;
         }
