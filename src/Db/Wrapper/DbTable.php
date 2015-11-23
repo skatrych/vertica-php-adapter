@@ -6,12 +6,12 @@
  * @date   19/11/15
  */
 
-namespace VerticaPhpAdapter\Adapter\Wrapper;
+namespace VerticaPhpAdapter\Db\Wrapper;
 
 
-use VerticaPhpAdapter\Adapter\Odbc\VerticaOdbcAbstract;
-use VerticaPhpAdapter\Adapter\Query\QueryBuilder;
-use VerticaPhpAdapter\Exceptions\OdbcException;
+use VerticaPhpAdapter\Db\Odbc\VerticaOdbcAbstract;
+use VerticaPhpAdapter\Db\Query\Builder as QueryBuilder;
+use VerticaPhpAdapter\Exception\VerticaException;
 
 class DbTable
 {
@@ -42,7 +42,7 @@ class DbTable
      * @param array $parameters Given parameters to insert
      *
      * @return bool
-     * @throws OdbcException
+     * @throws VerticaException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function insert(array $parameters)
@@ -84,7 +84,7 @@ class DbTable
      * @param string $sql Given SQL query
      *
      * @return ODBC resource
-     * @throws OdbcException
+     * @throws VerticaException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function query($sql)
@@ -104,7 +104,7 @@ class DbTable
     }
 
     /**
-     * Returns QueryBuilder object to build select query
+     * Returns Builder object to build select query
      *
      * @param array $fields Columns list to return
      *

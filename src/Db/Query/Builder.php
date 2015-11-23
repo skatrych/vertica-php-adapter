@@ -6,13 +6,13 @@
  * @date   19/11/15
  */
 
-namespace VerticaPhpAdapter\Adapter\Query;
+namespace VerticaPhpAdapter\Db\Query;
 
 
-use VerticaPhpAdapter\Adapter\Odbc\VerticaOdbcAbstract;
-use VerticaPhpAdapter\Exceptions\OdbcException;
+use VerticaPhpAdapter\Db\Odbc\VerticaOdbcAbstract;
+use VerticaPhpAdapter\Exception\VerticaException;
 
-class QueryBuilder
+class Builder
 {
     const VALUE_TYPE_STRING = 0;
     const VALUE_TYPE_NUMERIC = 1;
@@ -30,7 +30,7 @@ class QueryBuilder
     protected $fromTable;
 
     /**
-     * QueryBuilder constructor.
+     * Builder constructor.
      *
      * @param VerticaOdbcAbstract $adapter          Vertica Db adapter instance
      * @param string              $tableName        Given table name
@@ -63,7 +63,7 @@ class QueryBuilder
     }
 
     /**
-     * Extension to QueryBuilder::where(),
+     * Extension to Builder::where(),
      * adding " AND " before given condition.
      *
      * @param string $condition WHERE condition (Example: "created_at > NOW()")
@@ -78,7 +78,7 @@ class QueryBuilder
     }
 
     /**
-     * Extension to QueryBuilder::where(),
+     * Extension to Builder::where(),
      * adding " OR " before given condition.
      *
      * @param string $condition WHERE condition (Example: "created_at > NOW()")
@@ -98,7 +98,7 @@ class QueryBuilder
      * @param string $table     Table to be joined
      * @param string $condition Condition on what we have to join the table
      *
-     * @return QueryBuilder
+     * @return Builder
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function leftJoin($table, $condition)
@@ -112,7 +112,7 @@ class QueryBuilder
      * @param string $table     Table to be joined
      * @param string $condition Condition on what we have to join the table
      *
-     * @return QueryBuilder
+     * @return Builder
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function rightJoin($table, $condition)
@@ -127,7 +127,7 @@ class QueryBuilder
      * @param string $condition Condition on what we have to join the table
      * @param string $joinType  LEFT/RIGHT/INNER/OUTER join
      *
-     * @return QueryBuilder
+     * @return Builder
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function addJoin($table, $condition, $joinType)
@@ -191,17 +191,17 @@ class QueryBuilder
      * @param int $fetchMode Fetching rows as Objects or Arrays (Default: array)
      *
      * @return array|object
-     * @throws OdbcException
+     * @throws VerticaException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
-    public function fetchAll($fetchMode = VerticaOdbcAbstract::ARRAY_FETCH_MODE)
+    public function fetchAll($fetchMode = VerticaOdbcAbstract::FETCH_MODE_ARRAY)
     {
         $this->buildSql();
 
         try {
             $resource = $this->adapter->query($this->selectSQL);
-        } catch (OdbcException $e) {
-            throw new OdbcException("Failed to execute query: " . $this->selectSQL . "; due to " . $e->getMessage(), $e->getCode(), $e);
+        } catch (VerticaException $e) {
+            throw new VerticaException("Failed to execute query: " . $this->selectSQL . "; due to " . $e->getMessage(), $e->getCode(), $e);
         }
         return $this->adapter->fetchAll($resource, $fetchMode);
     }

@@ -6,8 +6,8 @@
  * @date 23/11/15
  */
 
-use VerticaPhpAdapter\Adapter\Wrapper\DbTable;
-use VerticaPhpAdapter\Adapter\Wrapper\Simple as VerticaAdapter;
+use VerticaPhpAdapter\Db\Wrapper\DbTable;
+use VerticaPhpAdapter\Db\Wrapper\Simple as VerticaAdapter;
 
 $config = [
     'user' => 'dbuser',
@@ -36,7 +36,7 @@ try {
         ->orderBy('created_at', 'DESC')
         ->limit(5, 10)
         ->fetchAll();
-    var_dump("Select with QueryBuilder returned: ", $results);
+    var_dump("Select with Builder returned: ", $results);
 
 } catch (Exception $e) {
     var_dump("Data fetching failed due to {$e->getMessage()}");
@@ -71,7 +71,7 @@ try {
  * If you choose to use adapter directly, you don't have QueryBuilder functionality yet while fetching data.
  */
 
-$connection = $adapter->connect();
+$connection = $adapter->getConnection();
 if (false === $connection) {
     die("Can't connect to Vertica Db using vertica-php-adapter");
 }
