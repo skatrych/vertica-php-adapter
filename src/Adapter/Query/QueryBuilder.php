@@ -176,11 +176,13 @@ class QueryBuilder
      * @param int $offset Given offset
      * @param int $limit  Given Max rows number
      *
+     * @return $this
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function limit($offset, $limit)
     {
         $this->limitString = $this->adapter->limit($this->limitString, $limit, $offset);
+        return $this;
     }
 
     /**

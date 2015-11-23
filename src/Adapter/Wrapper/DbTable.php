@@ -41,6 +41,7 @@ class DbTable
      * @param array $parameters Given parameters to insert
      *
      * @return bool
+     * @throws OdbcException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function insert(array $parameters)
