@@ -22,19 +22,17 @@ class DbTable
     /**
      * DbTable constructor.
      *
-     * @param VerticaOdbcAbstract $adapter   Vertica adapter object
-     * @param string              $tableName Given table
-     * @param array               $config    Db configs
+     * @param VerticaOdbcAbstract $adapter    Vertica adapter object
+     * @param string              $tableName  Given table
+     * @param string              $schemaName Schema name
      *
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
-    public function __construct(VerticaOdbcAbstract $adapter, $tableName, array $config)
+    public function __construct(VerticaOdbcAbstract $adapter, $tableName, $schemaName = '')
     {
         $this->adapter = $adapter;
         $this->name = $tableName;
-        if (!empty($config['schemaname'])) {
-            $this->schemaName = $config['schemaname'];
-        }
+        $this->schemaName = $schemaName;
     }
 
     /**
