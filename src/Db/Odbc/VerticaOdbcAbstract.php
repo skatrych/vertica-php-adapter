@@ -19,7 +19,7 @@ use VerticaPhpAdapter\Exception\VerticaQueryException;
 abstract class VerticaOdbcAbstract
 {
     const FETCH_MODE_ARRAY = 1;
-    const FETCH_MODE_OBJECT = 2;
+    const OBJECT_FETCH_MODE = 2;
 
     /** @var array */
     protected $config;
@@ -56,7 +56,7 @@ abstract class VerticaOdbcAbstract
     {
         $this->config = $config;
         if (false === $this->validateConfig()) {
-            throw new Exception("Vertica Odbc Db Exception. Failed to validate config properties.");
+            throw new Exception("Vertica Odbc Adapter Exception. Failed to validate config properties.");
         }
 
         $this->buildDsn();
@@ -144,7 +144,7 @@ abstract class VerticaOdbcAbstract
     {
         $results = [];
 
-        $fetchFunc = (self::FETCH_MODE_OBJECT === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
+        $fetchFunc = (self::OBJECT_FETCH_MODE === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
         while ($row = $fetchFunc($fetchFunc, $resource, $rowNumber)) {
             $results[] = $row;
         }
