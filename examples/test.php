@@ -62,6 +62,11 @@ try {
  * If you choose to use adapter directly, you don't have QueryBuilder functionality yet while fetching data.
  */
 
+$connection = $adapter->connect();
+if (false === $connection) {
+    die("Can't connect to Vertica Db using vertica-php-adapter");
+}
+
 try {
     $result = $adapter->insert("testSchema.testTable", ['column1' => 'value1', 'column2' => 'value2', 'created_at' => date('Y-m-d')]);
     var_dump("Insert operation completed with result: " . (true === $result ? 'OK' : 'NOK'));
@@ -69,3 +74,5 @@ try {
 } catch (Exception $e) {
     var_dump("Insert failed due to {$e->getMessage()}");
 }
+
+// @TODO: add adapter-direct examples for the other methods (update/delete/query/fetchAll/fetchOne)
