@@ -11,6 +11,7 @@
 
 namespace VerticaPhpAdapter\Adapter\Odbc;
 
+use Exception;
 use VerticaPhpAdapter\Exceptions\OdbcException;
 
 abstract class VerticaOdbcAbstract
@@ -46,14 +47,14 @@ abstract class VerticaOdbcAbstract
      *
      * @param array $config key/value pairs for Db config
      *
-     * @throws OdbcException
+     * @throws Exception
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function __construct(array $config)
     {
         $this->config = $config;
         if (false === $this->validateConfig()) {
-            throw new OdbcException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+            throw new Exception("Vertica Odbc Adapter Exception. Failed to validate config properties.");
         }
 
         $this->buildDsn();
