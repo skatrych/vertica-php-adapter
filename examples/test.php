@@ -16,7 +16,15 @@ $config = [
     'host' => 'localhost'
 ];
 
-$adapter = new Zend_Db_Adapter($config); // You can create any adapter class and extend it from VerticaOdbcAbstract to have functionality below
+try {
+    $adapter = new Zend_Db_Adapter($config); // You can create any adapter class and extend it from VerticaOdbcAbstract to have functionality below
+} catch (Exception $e) {
+    var_dump("Failed to init vertica-php-adapter due to {$e->getMessage()}");
+}
+
+/*
+ * Usage with DbTable (having DbTable instance per table in your Db)
+ */
 $dbTable = new DbTable($adapter, "testTable", "testSchema");
 
 /*
@@ -57,6 +65,7 @@ try {
 }
 
 /*
+ * ======================================================================================================================
  * Or alternatively you can do all of the operations described above without using DbTable but adapter instance directly.
  * Please note: you have to specify table name in this case.
  * If you choose to use adapter directly, you don't have QueryBuilder functionality yet while fetching data.
