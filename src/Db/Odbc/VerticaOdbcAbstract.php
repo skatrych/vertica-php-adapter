@@ -54,6 +54,10 @@ abstract class VerticaOdbcAbstract
      */
     public function __construct(array $config)
     {
+        if (!extension_loaded('odbc')) {
+            throw new Exception("The ODBC extension is required for this adapter BUT it's not loaded.");
+        }
+
         $this->config = $config;
         if (false === $this->validateConfig()) {
             throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
@@ -146,7 +150,7 @@ abstract class VerticaOdbcAbstract
         $results = [];
 
         $fetchFunc = (self::FETCH_MODE_OBJECT === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
-        while ($row = $fetchFunc($fetchFunc, $resource, $rowNumber)) {
+        while ($row = $fetchFunc($resource, $rowNumber)) {
             $results[] = $row;
         }
 
@@ -348,10 +352,6 @@ abstract class VerticaOdbcAbstract
      */
     protected function connect()
     {
-        if (!extension_loaded('odbc')) {
-            throw new Exception("The ODBC extension is required for this adapter BUT it's not loaded.");
-        }
-
         $this->connection = odbc_connect($this->config['dsn'], $this->config['user'], $this->config['password']);
         if (false === $this->connection) {
             throw new VerticaConnectionException("Can't connect to Vertica Database with DSN string " . $this->config['dsn']);
