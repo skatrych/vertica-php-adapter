@@ -8,7 +8,7 @@
 namespace VerticaPhpAdapter\Db\Adapter;
 
 
-class Zend_Db_Adapter_Odbc_Vertica
+class Zend_Db_Adapter_Odbc_Vertica extends Zend_Db_Adapter_Abstract
 {
 
 }

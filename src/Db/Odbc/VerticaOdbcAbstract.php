@@ -24,6 +24,9 @@ abstract class VerticaOdbcAbstract
     /** @var array */
     protected $config;
 
+    /** @var string */
+    protected $schemaName;
+
     /** @var array */
     protected $requiredConfigProperties = [
         'host',
@@ -62,6 +65,8 @@ abstract class VerticaOdbcAbstract
         if (false === $this->validateConfig()) {
             throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
         }
+
+        $this->schemaName = !empty($this->config['schemaname']) ? $this->config['schemaname'] : null;
 
         $this->buildDsn();
     }
@@ -113,6 +118,22 @@ abstract class VerticaOdbcAbstract
         }
 
         return $result;
+    }
+
+    /**
+     * Returns list of the tables under given schema
+     *
+     * @return array|object
+     * @throws VerticaQueryException
+     * @author Sergii Katrych <sergii.katrych@westwing.de>
+     */
+    public function listTables()
+    {
+        if (empty($this->schemaName)) {
+            return [];
+        }
+        $resource = $this->query("SELECT table_name FROM tables WHERE table_schema='{$this->schemaName}'");
+        return $this->fetchAll($resource);
     }
 
     /**
@@ -341,6 +362,28 @@ abstract class VerticaOdbcAbstract
 
         $result = $this->fetchOne($res);
         return current($result) == 1;
+    }
+
+    /**
+     * Close current db connection
+     *
+     * @author Sergii Katrych <sergii.katrych@westwing.de>
+     */
+    public function closeConnection()
+    {
+        odbc_close($this->getConnection());
+    }
+
+    /**
+     * Setter for Db schema name
+     *
+     * @param string $schemaName Name of the Db schema
+     *
+     * @author Sergii Katrych <sergii.katrych@westwing.de>
+     */
+    public function setSchemaName($schemaName)
+    {
+        $this->schemaName = $schemaName;
     }
 
     /**
