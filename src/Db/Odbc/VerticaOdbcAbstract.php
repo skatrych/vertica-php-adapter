@@ -9,15 +9,17 @@
  * @date   17/11/15
  */
 
-namespace VerticaPhpAdapter\Adapter\Odbc;
+namespace VerticaPhpAdapter\Db\Odbc;
 
 use Exception;
-use VerticaPhpAdapter\Exceptions\OdbcException;
+use VerticaPhpAdapter\Exception\VerticaConnectionException;
+use VerticaPhpAdapter\Exception\VerticaException;
+use VerticaPhpAdapter\Exception\VerticaQueryException;
 
 abstract class VerticaOdbcAbstract
 {
-    const ARRAY_FETCH_MODE = 1;
-    const OBJECT_FETCH_MODE = 2;
+    const FETCH_MODE_ARRAY = 1;
+    const FETCH_MODE_OBJECT = 2;
 
     /** @var array */
     protected $config;
@@ -52,9 +54,13 @@ abstract class VerticaOdbcAbstract
      */
     public function __construct(array $config)
     {
+        if (!extension_loaded('odbc')) {
+            throw new Exception("The ODBC extension is required for this adapter BUT it's not loaded.");
+        }
+
         $this->config = $config;
         if (false === $this->validateConfig()) {
-            throw new Exception("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+            throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
         }
 
         $this->buildDsn();
@@ -63,31 +69,19 @@ abstract class VerticaOdbcAbstract
     /**
      * Returns db connection resource
      *
-     * @return Resource
+     * @return Resource|false
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function getConnection()
     {
         if (is_null($this->connection)) {
-            $this->connect();
+            try {
+                $this->connect();
+            } catch (VerticaConnectionException $e) {
+                return false;
+            }
         }
         return $this->connection;
-    }
-
-    /**
-     * Connect to the database
-     *
-     * @return bool
-     * @author Sergii Katrych <sergii.katrych@westwing.de>
-     */
-    public function connect()
-    {
-        $this->connection = odbc_connect($this->config['dsn'], $this->config['user'], $this->config['password']);
-        if (false === $this->connection) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -97,6 +91,7 @@ abstract class VerticaOdbcAbstract
      * @param string|null $schemaName Schema identifier
      *
      * @return array
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function describeTable($tableName, $schemaName = null)
@@ -126,7 +121,7 @@ abstract class VerticaOdbcAbstract
      * @param string $sql Query string
      *
      * @return resource
-     * @throws OdbcException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function query($sql)
@@ -134,7 +129,7 @@ abstract class VerticaOdbcAbstract
         $resource = odbc_exec($this->getConnection(), $sql);
 
         if (false === $resource) {
-            throw new OdbcException(odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
+            throw new VerticaQueryException(odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
         }
 
         return $resource;
@@ -150,12 +145,12 @@ abstract class VerticaOdbcAbstract
      * @return array|object
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
-    public function fetchAll($resource, $fetchMode = self::ARRAY_FETCH_MODE, $rowNumber = null)
+    public function fetchAll($resource, $fetchMode = self::FETCH_MODE_ARRAY, $rowNumber = null)
     {
         $results = [];
 
-        $fetchFunc = (self::OBJECT_FETCH_MODE === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
-        while ($row = call_user_func($fetchFunc, $resource, $rowNumber)) {
+        $fetchFunc = (self::FETCH_MODE_OBJECT === $fetchMode) ? "odbc_fetch_object" : "odbc_fetch_array";
+        while ($row = $fetchFunc($resource, $rowNumber)) {
             $results[] = $row;
         }
 
@@ -171,7 +166,7 @@ abstract class VerticaOdbcAbstract
      * @return array|object
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
-    public function fetchOne($resource, $fetchMode = self::ARRAY_FETCH_MODE)
+    public function fetchOne($resource, $fetchMode = self::FETCH_MODE_ARRAY)
     {
         return $this->fetchAll($resource, $fetchMode, 0);
     }
@@ -183,7 +178,7 @@ abstract class VerticaOdbcAbstract
      * @param array  $parameters List of column/value pairs
      *
      * @return bool
-     * @throws OdbcException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function insert($tableName, array $parameters)
@@ -205,7 +200,7 @@ abstract class VerticaOdbcAbstract
      * @param string $where      WHERE clause
      *
      * @return bool
-     * @throws OdbcException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function update($tableName, array $parameters, $where)
@@ -232,11 +227,11 @@ abstract class VerticaOdbcAbstract
      * @param mixed  $where     WHERE clause, can be either string or array with columnName/value pairs
      *
      * @return bool
-     * @throws OdbcException
+     * @throws VerticaQueryException
      */
     public function delete($tableName, $where)
     {
-        $sql = "DELETE FROM ? WHERE ";
+        $sql = "DELETE FROM {$tableName} WHERE ";
 
         switch (true) {
             case empty($where):
@@ -245,7 +240,7 @@ abstract class VerticaOdbcAbstract
 
             case is_string($where):
                 $sql .= $where;
-                $where = array($tableName);
+                $where = [];
                 break;
 
             case is_array($where):
@@ -258,7 +253,6 @@ abstract class VerticaOdbcAbstract
                     $sql .= $column . ' = ?,';
                 }
                 $sql .= rtrim($sql, ',');
-                array_unshift($parameters, $tableName);
                 break;
         }
 
@@ -268,7 +262,7 @@ abstract class VerticaOdbcAbstract
     /**
      * Disable ODBC autocommit that is equivalent to starting transaction.
      *
-     * @throws OdbcException
+     * @throws VerticaException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function beginTransaction()
@@ -276,33 +270,33 @@ abstract class VerticaOdbcAbstract
         $result = odbc_autocommit($this->getConnection(), false);
 
         if (false === $result) {
-            throw new OdbcException("Failed to start transaction. Can't disable ODBC autocommit.", odbc_error($this->getConnection()));
+            throw new VerticaException("Failed to start transaction. Can't disable ODBC autocommit.", odbc_error($this->getConnection()));
         }
     }
 
     /**
      * Commit transaction and re-enable autocommit mode
      *
-     * @throws OdbcException
+     * @throws VerticaException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function commit()
     {
         $result = odbc_commit($this->getConnection());
         if (false === $result) {
-            throw new OdbcException("Failed to commit transaction due to " . odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
+            throw new VerticaException("Failed to commit transaction due to " . odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
         }
 
         $result = odbc_autocommit($this->getConnection(), true);
         if (false === $result) {
-            throw new OdbcException("Failed to re-enable autocommit to get out of transactions mode. " . odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
+            throw new VerticaException("Failed to re-enable autocommit to get out of transactions mode. " . odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
         }
     }
 
     /**
      * Roll back transaction
      *
-     * @throws OdbcException
+     * @throws VerticaException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function rollback()
@@ -310,7 +304,7 @@ abstract class VerticaOdbcAbstract
         $result = odbc_rollback($this->getConnection());
 
         if (false === $result) {
-            throw new OdbcException("Failed to RollBack transaction due to " . odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
+            throw new VerticaException("Failed to RollBack transaction due to " . odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
         }
     }
 
@@ -332,21 +326,38 @@ abstract class VerticaOdbcAbstract
     }
 
     /**
-     * Check if adapter is connected to Db
+     * Ping Db connection to see if it's alive
      *
      * @return bool
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
-    public function isConnected()
+    public function ping()
     {
         try {
             $res = $this->query("SELECT 1");
-        } catch (OdbcException $e) {
+        } catch (VerticaQueryException $e) {
             return false;
         }
 
         $result = $this->fetchOne($res);
         return current($result) == 1;
+    }
+
+    /**
+     * Connect to the database
+     *
+     * @return bool
+     * @throws VerticaConnectionException
+     * @author Sergii Katrych <sergii.katrych@westwing.de>
+     */
+    protected function connect()
+    {
+        $this->connection = odbc_connect($this->config['dsn'], $this->config['user'], $this->config['password']);
+        if (false === $this->connection) {
+            throw new VerticaConnectionException("Can't connect to Vertica Database with DSN string " . $this->config['dsn']);
+        }
+
+        return true;
     }
 
     /**
@@ -417,7 +428,7 @@ abstract class VerticaOdbcAbstract
      * @param array  $parameters Parameters to bind (optional in case you don't have placeholders in your query)
      *
      * @return bool
-     * @throws OdbcException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     protected function prepareAndExecute($sql, array $parameters = array())
@@ -425,7 +436,7 @@ abstract class VerticaOdbcAbstract
         $stmt = odbc_prepare($this->getConnection(), $sql);
 
         if (false === $stmt) {
-            throw new OdbcException(odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
+            throw new VerticaQueryException(odbc_errormsg($this->getConnection()), odbc_error($this->getConnection()));
         }
 
         // @TODO: validate and quote $parameters values
