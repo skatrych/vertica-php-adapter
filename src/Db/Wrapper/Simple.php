@@ -7,10 +7,10 @@
  * @date 23/11/15
  */
 
-namespace VerticaPhpAdapter\Adapter\Wrapper;
+namespace VerticaPhpAdapter\Db\Wrapper;
 
 
-use VerticaPhpAdapter\Adapter\Odbc\VerticaOdbcAbstract;
+use VerticaPhpAdapter\Db\Odbc\VerticaOdbcAbstract;
 
 class Simple extends VerticaOdbcAbstract
 {

@@ -6,12 +6,12 @@
  * @date   19/11/15
  */
 
-namespace VerticaPhpAdapter\Adapter\Wrapper;
+namespace VerticaPhpAdapter\Db\Wrapper;
 
 
-use VerticaPhpAdapter\Adapter\Odbc\VerticaOdbcAbstract;
-use VerticaPhpAdapter\Adapter\Query\QueryBuilder;
-use VerticaPhpAdapter\Exceptions\OdbcException;
+use VerticaPhpAdapter\Db\Odbc\VerticaOdbcAbstract;
+use VerticaPhpAdapter\Db\Query\Builder as QueryBuilder;
+use VerticaPhpAdapter\Exception\VerticaQueryException;
 
 class DbTable
 {
@@ -42,7 +42,7 @@ class DbTable
      * @param array $parameters Given parameters to insert
      *
      * @return bool
-     * @throws OdbcException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function insert(array $parameters)
@@ -57,6 +57,7 @@ class DbTable
      * @param string $where      Given WHERE clause
      *
      * @return bool
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function update(array $parameters, $where)
@@ -71,6 +72,7 @@ class DbTable
      * @param string $where Given WHERE clause
      *
      * @return bool
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function delete($where)
@@ -84,7 +86,7 @@ class DbTable
      * @param string $sql Given SQL query
      *
      * @return ODBC resource
-     * @throws OdbcException
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function query($sql)
@@ -96,6 +98,7 @@ class DbTable
      * Returns the list of table columns and types as an array
      *
      * @return array
+     * @throws VerticaQueryException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     public function describeTable()
@@ -104,7 +107,7 @@ class DbTable
     }
 
     /**
-     * Returns QueryBuilder object to build select query
+     * Returns Builder object to build select query
      *
      * @param array $fields Columns list to return
      *
