@@ -1,5 +1,5 @@
 {
-  "name": "skatrych/vertica-php-adapter",
+  "name": "westwing/vertica-php-adapter",
   "type": "library",
   "description": "PHP Adapter for Vertica Database from HP. Uses php ODBC extension.",
   "license": "MIT",
