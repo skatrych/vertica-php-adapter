@@ -56,7 +56,7 @@ abstract class VerticaOdbcAbstract
     {
         $this->config = $config;
         if (false === $this->validateConfig()) {
-            throw new Exception("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+            throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
         }
 
         $this->buildDsn();
@@ -348,6 +348,10 @@ abstract class VerticaOdbcAbstract
      */
     protected function connect()
     {
+        if (!extension_loaded('odbc')) {
+            throw new Exception("The ODBC extension is required for this adapter BUT it's not loaded.");
+        }
+
         $this->connection = odbc_connect($this->config['dsn'], $this->config['user'], $this->config['password']);
         if (false === $this->connection) {
             throw new VerticaConnectionException("Can't connect to Vertica Database with DSN string " . $this->config['dsn']);
