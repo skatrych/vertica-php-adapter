@@ -7,7 +7,7 @@
  */
 
 use VerticaPhpAdapter\Db\Wrapper\DbTable;
-use VerticaPhpAdapter\Db\Wrapper\Simple as VerticaAdapter;
+use VerticaPhpAdapter\Db\Odbc\Simple as VerticaAdapter;
 
 $config = [
     'user' => 'dbuser',
