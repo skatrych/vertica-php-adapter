@@ -226,7 +226,6 @@ abstract class VerticaOdbcAbstract
 
         $sql = "INSERT INTO {$tableName} (" . join(", ", array_keys($parameters)) . ") VALUES (" . rtrim(str_repeat('?, ', count($parameters)), ', ') . ")";
 
-        array_unshift($parameters, $tableName);
         return $this->prepareAndExecute($sql, $parameters);
         // ODBC doesn't support lastInsertID() or similar.
     }
