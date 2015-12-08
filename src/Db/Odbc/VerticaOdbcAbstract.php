@@ -224,9 +224,8 @@ abstract class VerticaOdbcAbstract
     {
         $parameters = $this->filterBindingParams($tableName, $parameters);
 
-        $sql = "INSERT INTO {$tableName} (" . join(", ", array_keys($parameters)) . ") VALUES (" . rtrim(str_repeat("?, ", count($parameters)), ",") . ")";
+        $sql = "INSERT INTO {$tableName} (" . join(", ", array_keys($parameters)) . ") VALUES (" . rtrim(str_repeat('?, ', count($parameters)), ', ') . ")";
 
-        array_unshift($parameters, $tableName);
         return $this->prepareAndExecute($sql, $parameters);
         // ODBC doesn't support lastInsertID() or similar.
     }
@@ -251,7 +250,7 @@ abstract class VerticaOdbcAbstract
         foreach ($parameters as $column => $value) {
             $sql .= $column . " = {$this->quote($value)},";
         }
-        $sql = rtrim($sql, ',') . ' WHERE ' . (!empty($where) ? $where : '1');
+        $sql = rtrim($sql, ', ') . ' WHERE ' . (!empty($where) ? $where : '1');
 
         return $this->prepareAndExecute($sql);
     }
@@ -291,7 +290,7 @@ abstract class VerticaOdbcAbstract
                 foreach ($where as $column => $value) {
                     $sql .= $column . ' = ?,';
                 }
-                $sql .= rtrim($sql, ',');
+                $sql .= rtrim($sql, ', ');
                 break;
         }
 
