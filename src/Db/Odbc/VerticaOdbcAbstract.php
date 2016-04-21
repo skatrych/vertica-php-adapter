@@ -41,6 +41,9 @@ abstract class VerticaOdbcAbstract
     /**
      * VerticaOdbcAbstract constructor.
      *
+     * Note: in case you don't pass configs into constructor,
+     * you have to set it using public setConfig() method!
+     *
      * Example: array(
      *  'user' => 'string',
      *  'password' => 'string',
@@ -61,9 +64,9 @@ abstract class VerticaOdbcAbstract
             throw new Exception("The ODBC extension is required for this adapter BUT it's not loaded.");
         }
 	
-	if (!empty($config)) {
+        if (!empty($config)) {
             $this->setConfig($config, false);
-	}
+        }
     }
 
     /**
@@ -86,14 +89,13 @@ abstract class VerticaOdbcAbstract
             $this->config = array_merge($this->config, $config);
         }
 	
-	$this->schemaName = !empty($this->config['schemaname']) ? $this->config['schemaname'] : null;
+        $this->schemaName = !empty($this->config['schemaname']) ? $this->config['schemaname'] : null;
 
-	if (false === $this->validateConfig()) {
-	    throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
-	}
+        if (false === $this->validateConfig()) {
+	       throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+        }
 	
-	// rebuild DSN string due to configs change
-	$this->buildDsn();
+	   $this->buildDsn();
     }
 
     /**
@@ -104,13 +106,13 @@ abstract class VerticaOdbcAbstract
      */
     public function getConnection()
     {
-	if (!is_null($this->connection)) {
-	    return $this->connection;
-	}
+    	if (!is_null($this->connection)) {
+    	    return $this->connection;
+    	}
     
-	try {
+        try {
             $this->connect();
-	} catch (VerticaConnectionException $e) {
+        } catch (VerticaConnectionException $e) {
             return false;
         }
       
@@ -234,9 +236,8 @@ abstract class VerticaOdbcAbstract
     {
         $parameters = $this->filterBindingParams($tableName, $parameters);
 
-        $sql = "INSERT INTO {$tableName} (" . join(", ", array_keys($parameters)) . ") VALUES (" . rtrim(str_repeat("?, ", count($parameters)), ",") . ")";
+        $sql = "INSERT INTO {$tableName} (" . join(", ", array_keys($parameters)) . ") VALUES (" . rtrim(str_repeat('?, ', count($parameters)), ', ') . ")";
 
-        array_unshift($parameters, $tableName);
         return $this->prepareAndExecute($sql, $parameters);
         // ODBC doesn't support lastInsertID() or similar.
     }
@@ -261,7 +262,7 @@ abstract class VerticaOdbcAbstract
         foreach ($parameters as $column => $value) {
             $sql .= $column . " = {$this->quote($value)},";
         }
-        $sql = rtrim($sql, ',') . ' WHERE ' . (!empty($where) ? $where : '1');
+        $sql = rtrim($sql, ', ') . ' WHERE ' . (!empty($where) ? $where : '1');
 
         return $this->prepareAndExecute($sql);
     }
@@ -301,7 +302,7 @@ abstract class VerticaOdbcAbstract
                 foreach ($where as $column => $value) {
                     $sql .= $column . ' = ?,';
                 }
-                $sql .= rtrim($sql, ',');
+                $sql .= rtrim($sql, ', ');
                 break;
         }
 
@@ -419,10 +420,15 @@ abstract class VerticaOdbcAbstract
      *
      * @return bool
      * @throws VerticaConnectionException
+     * @throws VerticaException
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
     protected function connect()
     {
+        if (false === $this->validateConfig()) {
+            throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+        }
+
         $this->connection = odbc_connect($this->config['dsn'], $this->config['user'], $this->config['password']);
         if (false === $this->connection) {
             throw new VerticaConnectionException("Can't connect to Vertica Database with DSN string " . $this->config['dsn']);

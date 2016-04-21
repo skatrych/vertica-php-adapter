@@ -16,7 +16,7 @@ Please make sure you have installed:
 * unixODBC
 
 Make ODBC and Vertica drivers to work together:
-* Download and extract Vertica drivers from official website https://my.vertica.com/ (it should match your Vertica Db version)
+* Download and extract Vertica drivers from official website https://my.vertica.com/vertica-client-drivers/ (it should match your Vertica Db version)
 * Extract driver under /opt/vertica/
 * create/edit file: /etc/odbc.ini (see example under vertica-php-adapter/examples/drivers/odbc.ini)
 * create/edit file: /etc/odbcinst.ini (see example under vertica-php-adapter/examples/drivers/odbcinst.ini)
