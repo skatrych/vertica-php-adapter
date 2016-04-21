@@ -423,10 +423,6 @@ abstract class VerticaOdbcAbstract
      */
     protected function connect()
     {
-	if (false === $this->validateConfig()) {
- 	    throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
- 	}
- 
         $this->connection = odbc_connect($this->config['dsn'], $this->config['user'], $this->config['password']);
         if (false === $this->connection) {
             throw new VerticaConnectionException("Can't connect to Vertica Database with DSN string " . $this->config['dsn']);
