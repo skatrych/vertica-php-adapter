@@ -63,7 +63,7 @@ abstract class VerticaOdbcAbstract
         if (!extension_loaded('odbc')) {
             throw new Exception("The ODBC extension is required for this adapter BUT it's not loaded.");
         }
-	
+
         if (!empty($config)) {
             $this->setConfig($config, false);
         }
@@ -88,14 +88,14 @@ abstract class VerticaOdbcAbstract
         } else {
             $this->config = array_merge($this->config, $config);
         }
-	
+
         $this->schemaName = !empty($this->config['schemaname']) ? $this->config['schemaname'] : null;
 
         if (false === $this->validateConfig()) {
-	       throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+            throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
         }
-	
-	   $this->buildDsn();
+
+        $this->buildDsn();
     }
 
     /**
@@ -106,23 +106,23 @@ abstract class VerticaOdbcAbstract
      */
     public function getConnection()
     {
-    	if (!is_null($this->connection)) {
-    	    return $this->connection;
-    	}
-    
+        if (!is_null($this->connection)) {
+            return $this->connection;
+        }
+
         try {
             $this->connect();
         } catch (VerticaConnectionException $e) {
             return false;
         }
-      
+
         return $this->connection;
     }
 
     /**
      * Fetch details about Db table
      *
-     * @param string      $tableName  Table identifier
+     * @param string      $tableName Table identifier
      * @param string|null $schemaName Schema identifier
      *
      * @return array
@@ -189,7 +189,7 @@ abstract class VerticaOdbcAbstract
     /**
      * Fetch data based on query resource
      *
-     * @param Resource $resource  Result of execution $this->query()
+     * @param Resource $resource Result of execution $this->query()
      * @param int      $fetchMode Optionally choose fetching mode: Object or Array
      * @param int|null $rowNumber Optionally choose which row number to retrieve
      *
@@ -211,7 +211,7 @@ abstract class VerticaOdbcAbstract
     /**
      * Fetch single row based on query resource
      *
-     * @param Resource $resource  Result of execution $this->query()
+     * @param Resource $resource Result of execution $this->query()
      * @param int      $fetchMode Optionally choose fetching mode: Object or Array
      *
      * @return array|object
@@ -225,7 +225,7 @@ abstract class VerticaOdbcAbstract
     /**
      * Insert new record into the table
      *
-     * @param string $tableName  Given db table name with schema as a prefix (Example: 'schema.table')
+     * @param string $tableName Given db table name with schema as a prefix (Example: 'schema.table')
      * @param array  $parameters List of column/value pairs
      *
      * @return bool
@@ -245,9 +245,9 @@ abstract class VerticaOdbcAbstract
     /**
      * Update rows in the table with values from @parameters within WHERE clause
      *
-     * @param string $tableName  Given db table name with schema as a prefix (Example: 'schema.table')
+     * @param string $tableName Given db table name with schema as a prefix (Example: 'schema.table')
      * @param array  $parameters List of column/value pairs to replace existing values
-     * @param string $where      WHERE clause
+     * @param string $where WHERE clause
      *
      * @return bool
      * @throws VerticaQueryException
@@ -273,8 +273,9 @@ abstract class VerticaOdbcAbstract
      * For those cases please use $this->query() instead.
      *
      * @author Sergii Katrych <sergii.katrych@westwing.de>
+     *
      * @param string $tableName Given db table name with schema as a prefix (Example: 'schema.table')
-     * @param mixed  $where     WHERE clause, can be either string or array with columnName/value pairs
+     * @param mixed  $where WHERE clause, can be either string or array with columnName/value pairs
      *
      * @return bool
      * @throws VerticaQueryException
@@ -361,8 +362,8 @@ abstract class VerticaOdbcAbstract
     /**
      * Adds Vertica specific LIMIT clause to the SELECT statement.
      *
-     * @param mixed   $sql    Sql query
-     * @param integer $count  Limit returned results to this number
+     * @param mixed   $sql Sql query
+     * @param integer $count Limit returned results to this number
      * @param integer $offset Query offset
      *
      * @return string Updated SQL query
@@ -474,9 +475,9 @@ abstract class VerticaOdbcAbstract
      */
     protected function buildDsn()
     {
-	if (empty($this->config)) {
-	    return;
-	}
+        if (empty($this->config)) {
+            return;
+        }
 
         $driver = !empty($this->config['driver']) ? $this->config['driver'] : 'Vertica';
         $port = !empty($this->config['port']) ? $this->config['port'] : 5433;
@@ -487,7 +488,7 @@ abstract class VerticaOdbcAbstract
     /**
      * Filter out parameters that doesn't match to column names in the table
      *
-     * @param string $tableName  Given db table
+     * @param string $tableName Given db table
      * @param array  $parameters List of parameters to filter
      *
      * @return array
@@ -505,7 +506,7 @@ abstract class VerticaOdbcAbstract
     /**
      * Prepares SQL query as a statement and executes it with bind parameters
      *
-     * @param string $sql        Given SQL query
+     * @param string $sql Given SQL query
      * @param array  $parameters Parameters to bind (optional in case you don't have placeholders in your query)
      *
      * @return bool
