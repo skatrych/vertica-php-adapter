@@ -55,20 +55,45 @@ abstract class VerticaOdbcAbstract
      * @throws Exception
      * @author Sergii Katrych <sergii.katrych@westwing.de>
      */
-    public function __construct(array $config)
+    public function __construct(array $config = [])
     {
         if (!extension_loaded('odbc')) {
             throw new Exception("The ODBC extension is required for this adapter BUT it's not loaded.");
         }
+	
+	if (!empty($config)) {
+            $this->setConfig($config, false);
+	}
+    }
 
-        $this->config = $config;
-        if (false === $this->validateConfig()) {
-            throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+    /**
+     * Set adapter configurations.
+     * By default it overrides existing configs, set in constructor.
+     * But in case you set 2nd argument ($mergeConfig) to true, it will merge
+     * both configs, considering new config as a master data in case of conflicts.
+     *
+     * @param array $config      Given configurations
+     * @param bool  $mergeConfig Override on false; merge on true.
+     *
+     * @throws VerticaException
+     * @author Sergii Katrych <sergii.katrych@westwing.de>
+     */
+    public function setConfig(array $config, $mergeConfig = false)
+    {
+        if (empty($this->config) || false === $mergeConfig) {
+            $this->config = $config;
+        } else {
+            $this->config = array_merge($this->config, $config);
         }
+	
+	$this->schemaName = !empty($this->config['schemaname']) ? $this->config['schemaname'] : null;
 
-        $this->schemaName = !empty($this->config['schemaname']) ? $this->config['schemaname'] : null;
-
-        $this->buildDsn();
+	if (false === $this->validateConfig()) {
+	    throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+	}
+	
+	// rebuild DSN string due to configs change
+	$this->buildDsn();
     }
 
     /**
@@ -79,13 +104,16 @@ abstract class VerticaOdbcAbstract
      */
     public function getConnection()
     {
-        if (is_null($this->connection)) {
-            try {
-                $this->connect();
-            } catch (VerticaConnectionException $e) {
-                return false;
-            }
+	if (!is_null($this->connection)) {
+	    return $this->connection;
+	}
+    
+	try {
+            $this->connect();
+	} catch (VerticaConnectionException $e) {
+            return false;
         }
+      
         return $this->connection;
     }
 
@@ -395,6 +423,10 @@ abstract class VerticaOdbcAbstract
      */
     protected function connect()
     {
+	if (false === $this->validateConfig()) {
+ 	    throw new VerticaException("Vertica Odbc Adapter Exception. Failed to validate config properties.");
+ 	}
+ 
         $this->connection = odbc_connect($this->config['dsn'], $this->config['user'], $this->config['password']);
         if (false === $this->connection) {
             throw new VerticaConnectionException("Can't connect to Vertica Database with DSN string " . $this->config['dsn']);
@@ -440,6 +472,10 @@ abstract class VerticaOdbcAbstract
      */
     protected function buildDsn()
     {
+	if (empty($this->config)) {
+	    return;
+	}
+
         $driver = !empty($this->config['driver']) ? $this->config['driver'] : 'Vertica';
         $port = !empty($this->config['port']) ? $this->config['port'] : 5433;
 
