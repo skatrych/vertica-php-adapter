@@ -127,7 +127,7 @@ class DbTable
      */
     protected function useSchemaName()
     {
-        if (!empty($this->schemaName) || strpos($this->name, ".") > 0) {
+        if (empty($this->schemaName) || strpos($this->name, ".") > 0) {
             return;
         }
         $this->name = $this->schemaName . "." . $this->name;
